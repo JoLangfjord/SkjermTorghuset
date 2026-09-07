@@ -71,8 +71,13 @@
     transform: translateY(10px);
     transition: opacity 0.7s ease, transform 0.7s ease;
     pointer-events:none;
+    overflow:hidden;
   }
   .slide.aktiv{ opacity:1; transform: translateY(0); pointer-events:auto; }
+  .slide.melding.lang{ align-items:flex-start; padding-top: 2vh; }
+  .slide.melding.lang .tekst-kolonne{ max-height: 100%; overflow:hidden; }
+  .slide.melding.lang h2{ font-size: clamp(1.8rem, 3.2vw, 3.2rem); margin-bottom: 1.6vh; }
+  .slide.melding.lang p{ font-size: clamp(0.95rem, 1.35vw, 1.35rem); line-height:1.42; }
 
   /* ---- Meldinger ---- */
   .slide.melding{ max-width: 74%; }
@@ -262,6 +267,14 @@
     mainEl.appendChild(document.querySelector('.avganger-slide'));
     mainEl.appendChild(document.querySelector('.vaer-slide'));
 
+    // Lange meldinger sentreres ikke (unngår at teksten dytter seg opp i klokke/dato-feltet)
+    mainEl.querySelectorAll('.slide.melding').forEach(slide => {
+      const kolonne = slide.querySelector('.tekst-kolonne');
+      if(kolonne && kolonne.scrollHeight > mainEl.clientHeight * 0.94){
+        slide.classList.add('lang');
+      }
+    });
+
     byggPrikker();
     startKarusell();
   }
@@ -284,7 +297,7 @@
   /* ============ 2) AVGANGER (Entur) ============ */
   const STOPPESTED_ID   = 'NSR:StopPlace:344'; // Jessheim stasjon/skysstasjon
   const ET_CLIENT_NAME  = 'torghuset-infoskjerm';
-  const ANTALL_HENTES   = 30;
+  const ANTALL_HENTES   = 60;
   const MAKS_PER_KOLONNE = 6;
   const OPPDATER_AVGANGER_SEK = 30;
   const ENTUR_ENDEPUNKT = 'https://api.entur.io/journey-planner/v3/graphql';
