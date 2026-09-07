@@ -74,10 +74,8 @@
     overflow:hidden;
   }
   .slide.aktiv{ opacity:1; transform: translateY(0); pointer-events:auto; }
-  .slide.melding.lang{ align-items:flex-start; padding-top: 2vh; }
-  .slide.melding.lang .tekst-kolonne{ max-height: 100%; overflow:hidden; }
-  .slide.melding.lang h2{ font-size: clamp(1.8rem, 3.2vw, 3.2rem); margin-bottom: 1.6vh; }
-  .slide.melding.lang p{ font-size: clamp(0.95rem, 1.35vw, 1.35rem); line-height:1.42; }
+  .slide.melding{ align-items:flex-start; padding-top: 2vh; }
+  .slide.melding .tekst-kolonne{ max-height: 100%; overflow:hidden; }
 
   /* ---- Meldinger ---- */
   .slide.melding{ max-width: 74%; }
@@ -99,10 +97,10 @@
   .tag.arrangement{ background: rgba(91,138,128,0.2); color: var(--teal); }
   .slide.melding h2{
     font-family:'Fraunces', serif; font-weight:500;
-    font-size: clamp(2.4rem, 4.6vw, 4.6rem); line-height:1.08; margin:0 0 2.4vh 0;
+    font-size: clamp(2rem, 3.8vw, 3.8rem); line-height:1.1; margin:0 0 1.8vh 0;
   }
   .slide.melding p{
-    font-size: clamp(1.1rem, 1.7vw, 1.7rem); line-height:1.5; color:var(--text-dim); margin:0; max-width:62ch;
+    font-size: clamp(1rem, 1.45vw, 1.45rem); line-height:1.45; color:var(--text-dim); margin:0; max-width:62ch;
   }
   .dato-chip{ margin-top:2.4vh; font-size: clamp(0.95rem, 1.15vw, 1.2rem); color:var(--brass); font-weight:500; }
   .tom{ font-size: clamp(1.3rem, 2vw, 2rem); color:var(--text-dim); font-family:'Fraunces', serif; }
@@ -267,14 +265,6 @@
     mainEl.appendChild(document.querySelector('.avganger-slide'));
     mainEl.appendChild(document.querySelector('.vaer-slide'));
 
-    // Lange meldinger sentreres ikke (unngår at teksten dytter seg opp i klokke/dato-feltet)
-    mainEl.querySelectorAll('.slide.melding').forEach(slide => {
-      const kolonne = slide.querySelector('.tekst-kolonne');
-      if(kolonne && kolonne.scrollHeight > mainEl.clientHeight * 0.94){
-        slide.classList.add('lang');
-      }
-    });
-
     byggPrikker();
     startKarusell();
   }
@@ -295,7 +285,10 @@
   }
 
   /* ============ 2) AVGANGER (Entur) ============ */
-  const STOPPESTED_ID   = 'NSR:StopPlace:344'; // Jessheim stasjon/skysstasjon
+  const STOPPESTED_IDER = [
+    'NSR:StopPlace:344',   // Jessheim stasjon (tog)
+    // 'NSR:StopPlace:XXXXX', // Jessheim bussterminal — legg til her når vi har funnet riktig ID
+  ];
   const ET_CLIENT_NAME  = 'torghuset-infoskjerm';
   const ANTALL_HENTES   = 60;
   const MAKS_PER_KOLONNE = 6;
@@ -338,26 +331,41 @@
   async function hentAvganger(){
     const statusEl = document.getElementById('avgangerStatus');
     try{
-      const res = await fetch(ENTUR_ENDEPUNKT, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'ET-Client-Name': ET_CLIENT_NAME },
-        body: JSON.stringify({ query: ENTUR_SPORRING, variables: { id: STOPPESTED_ID, n: ANTALL_HENTES } })
-      });
-      if(!res.ok) throw new Error('Entur svarte med feilkode ' + res.status);
-      const json = await res.json();
-      if(json.errors && json.errors.length) throw new Error(json.errors[0].message || 'Ukjent feil fra Entur');
-      const stopPlace = json.data && json.data.stopPlace;
-      if(!stopPlace) throw new Error('Fant ikke stoppestedet.');
+      const svar = await Promise.all(STOPPESTED_IDER.map(id =>
+        fetch(ENTUR_ENDEPUNKT, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'ET-Client-Name': ET_CLIENT_NAME },
+          body: JSON.stringify({ query: ENTUR_SPORRING, variables: { id, n: ANTALL_HENTES } })
+        }).then(res => {
+          if(!res.ok) throw new Error('Entur svarte med feilkode ' + res.status);
+          return res.json();
+        })
+      ));
 
-      const calls = stopPlace.estimatedCalls || [];
-      const tog = calls.filter(c => c.serviceJourney?.journeyPattern?.line?.transportMode === 'rail');
-      const buss = calls.filter(c => {
+      let alleCalls = [];
+      svar.forEach(json => {
+        if(json.errors && json.errors.length) throw new Error(json.errors[0].message || 'Ukjent feil fra Entur');
+        const calls = json.data?.stopPlace?.estimatedCalls || [];
+        alleCalls = alleCalls.concat(calls);
+      });
+      alleCalls.sort((a,b) => new Date(a.expectedDepartureTime) - new Date(b.expectedDepartureTime));
+
+      const tog = alleCalls.filter(c => c.serviceJourney?.journeyPattern?.line?.transportMode === 'rail');
+      const buss = alleCalls.filter(c => {
         const m = c.serviceJourney?.journeyPattern?.line?.transportMode;
         return m === 'bus' || m === 'coach';
       });
       tegnAvgangKolonne(document.getElementById('togListe'), tog, 'Ingen togavganger de nærmeste minuttene.');
       tegnAvgangKolonne(document.getElementById('bussListe'), buss, 'Ingen bussavganger de nærmeste minuttene.');
-      statusEl.textContent = 'Sist oppdatert ' + new Date().toLocaleTimeString('nb-NO', { hour:'2-digit', minute:'2-digit', second:'2-digit' });
+
+      // Midlertidig diagnose: viser nøyaktig hva Entur svarte, for feilsøking
+      const moduser = alleCalls.map(c => c.serviceJourney?.journeyPattern?.line?.transportMode || '(mangler)');
+      const modusOversikt = moduser.reduce((acc, m) => { acc[m] = (acc[m]||0)+1; return acc; }, {});
+      const modusTekst = Object.entries(modusOversikt).map(([m,n]) => `${m}: ${n}`).join(', ') || 'ingen';
+      const diagnoseTekst = `Hentet ${alleCalls.length} avganger totalt fra ${STOPPESTED_IDER.length} holdeplass(er). Moduser funnet: ${modusTekst}.`;
+
+      statusEl.innerHTML = 'Sist oppdatert ' + new Date().toLocaleTimeString('nb-NO', { hour:'2-digit', minute:'2-digit', second:'2-digit' })
+        + `<br><span style="opacity:0.7">${diagnoseTekst}</span>`;
     }catch(e){
       console.error('Klarte ikke hente avganger', e);
       statusEl.innerHTML = `<span class="av-feil">Klarte ikke hente avganger: ${e.message}</span>`;
