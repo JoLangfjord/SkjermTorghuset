@@ -286,8 +286,8 @@
 
   /* ============ 2) AVGANGER (Entur) ============ */
   const STOPPESTED_IDER = [
-    'NSR:StopPlace:344',   // Jessheim stasjon (tog) — bekreftet: kun rail
-    'NSR:StopPlace:4961',  // testes: mulig bussholdeplass-ID for samme sted
+    'NSR:StopPlace:344',   // Jessheim stasjon (tog)
+    'NSR:StopPlace:4961',  // Jessheim bussterminal (buss)
   ];
   const ET_CLIENT_NAME  = 'torghuset-infoskjerm';
   const ANTALL_HENTES   = 60;
@@ -357,15 +357,7 @@
       });
       tegnAvgangKolonne(document.getElementById('togListe'), tog, 'Ingen togavganger de nærmeste minuttene.');
       tegnAvgangKolonne(document.getElementById('bussListe'), buss, 'Ingen bussavganger de nærmeste minuttene.');
-
-      // Midlertidig diagnose: viser nøyaktig hva Entur svarte, for feilsøking
-      const moduser = alleCalls.map(c => c.serviceJourney?.journeyPattern?.line?.transportMode || '(mangler)');
-      const modusOversikt = moduser.reduce((acc, m) => { acc[m] = (acc[m]||0)+1; return acc; }, {});
-      const modusTekst = Object.entries(modusOversikt).map(([m,n]) => `${m}: ${n}`).join(', ') || 'ingen';
-      const diagnoseTekst = `Hentet ${alleCalls.length} avganger totalt fra ${STOPPESTED_IDER.length} holdeplass(er). Moduser funnet: ${modusTekst}.`;
-
-      statusEl.innerHTML = 'Sist oppdatert ' + new Date().toLocaleTimeString('nb-NO', { hour:'2-digit', minute:'2-digit', second:'2-digit' })
-        + `<br><span style="opacity:0.7">${diagnoseTekst}</span>`;
+      statusEl.textContent = 'Sist oppdatert ' + new Date().toLocaleTimeString('nb-NO', { hour:'2-digit', minute:'2-digit', second:'2-digit' });
     }catch(e){
       console.error('Klarte ikke hente avganger', e);
       statusEl.innerHTML = `<span class="av-feil">Klarte ikke hente avganger: ${e.message}</span>`;
