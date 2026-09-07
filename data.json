@@ -1,6 +1,11 @@
 {
-  "type": "viktig",
-  "tittel": "Malerarbeid Torghuset",
-  "tekst": "Kjære beboere,\n\nVi ønsker å informere om:\n\nStillaset på deler av bygget vil bli demontert fra og med mandag 31. august.\n\nDet vil bli satt opp nytt stillas på resterende deler av bygget fra og med tirsdag 1. september.\n\nFor å sikre en trygg og effektiv gjennomføring av arbeidet, ber vi alle berørte beboere om å gjøre følgende før oppstart:\n\nFjerne alle møbler fra balkonger og uteplasser.\nFjerne planter, blomsterkasser og øvrige løse gjenstander.\nHeve/samle opp screens og markiser slik at disse ikke kommer i konflikt med stillaset eller arbeidet.\nFjerne flagg oppheng etc.\n\nDet er viktig at områdene er ryddet innen mandag kveld 31. august.\n\nVi beklager ulempene dette måtte medføre og takker for forståelsen og samarbeidet.\n\nTakk for tålmodigheten og samarbeidet gjennom prosjektperioden.\n\nMed vennlig hilsen\nStyret",
-  "dato": "07.09.2026"
+  "sameie": "Torghuset",
+  "meldinger": [
+    {
+      "type": "viktig",
+      "tittel": "Malerarbeid Torghuset",
+      "tekst": "Kjære beboere,\n\nVi ønsker å informere om:\n\nStillaset på deler av bygget vil bli demontert fra og med mandag 31. august.\n\nDet vil bli satt opp nytt stillas på resterende deler av bygget fra og med tirsdag 1. september.\n\nFor å sikre en trygg og effektiv gjennomføring av arbeidet, ber vi alle berørte beboere om å gjøre følgende før oppstart:\n\nFjerne alle møbler fra balkonger og uteplasser.\nFjerne planter, blomsterkasser og øvrige løse gjenstander.\nHeve/samle opp screens og markiser slik at disse ikke kommer i konflikt med stillaset eller arbeidet.\nFjerne flagg oppheng etc.\n\nDet er viktig at områdene er ryddet innen mandag kveld 31. august.\n\nVi beklager ulempene dette måtte medføre og takker for forståelsen og samarbeidet.\n\nTakk for tålmodigheten og samarbeidet gjennom prosjektperioden.\n\nMed vennlig hilsen\nStyret",
+      "dato": "07.09.2026"
+    }
+  ]
 }

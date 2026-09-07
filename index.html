@@ -52,134 +52,96 @@
     gap: 1.4vw;
     font-variant-numeric: tabular-nums;
   }
-  .klokke{
-    font-size: clamp(1.6rem, 2.8vw, 2.8rem);
-    font-weight: 600;
-  }
-  .dato{
-    font-size: clamp(0.95rem, 1.3vw, 1.3rem);
-    color: var(--text-dim);
-    text-transform: capitalize;
-  }
+  .klokke{ font-size: clamp(1.6rem, 2.8vw, 2.8rem); font-weight: 600; }
+  .dato{ font-size: clamp(0.95rem, 1.3vw, 1.3rem); color: var(--text-dim); text-transform: capitalize; }
 
   main{
     flex: 1;
     position: relative;
     display:flex;
     align-items:center;
+    min-height:0;
   }
   .slide{
     position:absolute;
     inset:0;
     display:flex;
     align-items:center;
-    max-width: 74%;
     opacity:0;
     transform: translateY(10px);
     transition: opacity 0.7s ease, transform 0.7s ease;
     pointer-events:none;
   }
-  .slide.aktiv{
-    opacity:1;
-    transform: translateY(0);
-    pointer-events:auto;
-  }
-  .tekst-kolonne{
-    display:flex;
-    flex-direction:column;
-    justify-content:center;
-  }
+  .slide.aktiv{ opacity:1; transform: translateY(0); pointer-events:auto; }
 
-  /* Slide med bilde og tekst side om side */
-  .slide.med-bilde{
-    max-width: 90%;
-    gap: 4.5vw;
-  }
-  .slide.med-bilde .tekst-kolonne{ flex: 0 0 42%; }
-  .bilde-kolonne{
-    flex: 1;
-    height: 62vh;
-    border-radius: 14px;
-    overflow: hidden;
-    border: 1px solid var(--hairline);
-    background: var(--bg-panel);
-  }
-  .bilde-kolonne img{
-    width:100%; height:100%;
-    object-fit: cover;
-    display:block;
-  }
-
-  /* Slide som kun er et bilde (poster/plakat), uten brødtekst */
-  .slide.kun-bilde{
-    flex-direction: column;
-    justify-content: center;
-    max-width: 74%;
-    gap: 2vh;
-  }
-  .slide.kun-bilde .bilde-kolonne{
-    flex: none;
-    width: 100%;
-    height: 68vh;
-  }
-  .slide.kun-bilde .tekst-kolonne{ flex: none; }
+  /* ---- Meldinger ---- */
+  .slide.melding{ max-width: 74%; }
+  .slide.melding.med-bilde{ max-width: 90%; gap: 4.5vw; }
+  .tekst-kolonne{ display:flex; flex-direction:column; justify-content:center; }
+  .slide.melding.med-bilde .tekst-kolonne{ flex: 0 0 42%; }
+  .bilde-kolonne{ flex:1; height:62vh; border-radius:14px; overflow:hidden; border:1px solid var(--hairline); background:var(--bg-panel); }
+  .bilde-kolonne img{ width:100%; height:100%; object-fit:cover; display:block; }
+  .slide.melding.kun-bilde{ flex-direction:column; justify-content:center; max-width:74%; gap:2vh; }
+  .slide.melding.kun-bilde .bilde-kolonne{ flex:none; width:100%; height:68vh; }
   .tag{
-    display:inline-flex;
-    align-items:center;
-    gap:0.5em;
-    align-self:flex-start;
-    padding: 0.4em 0.9em;
-    border-radius: 999px;
-    font-size: clamp(0.85rem, 1vw, 1.05rem);
-    font-weight: 600;
+    display:inline-flex; align-items:center; align-self:flex-start;
+    padding: 0.4em 0.9em; border-radius: 999px;
+    font-size: clamp(0.85rem, 1vw, 1.05rem); font-weight:600;
     margin-bottom: 2.2vh;
-    background: rgba(201,164,103,0.16);
-    color: var(--brass);
+    background: rgba(201,164,103,0.16); color: var(--brass);
   }
   .tag.viktig{ background: rgba(193,102,107,0.18); color: var(--red); }
   .tag.arrangement{ background: rgba(91,138,128,0.2); color: var(--teal); }
+  .slide.melding h2{
+    font-family:'Fraunces', serif; font-weight:500;
+    font-size: clamp(2.4rem, 4.6vw, 4.6rem); line-height:1.08; margin:0 0 2.4vh 0;
+  }
+  .slide.melding p{
+    font-size: clamp(1.1rem, 1.7vw, 1.7rem); line-height:1.5; color:var(--text-dim); margin:0; max-width:62ch;
+  }
+  .dato-chip{ margin-top:2.4vh; font-size: clamp(0.95rem, 1.15vw, 1.2rem); color:var(--brass); font-weight:500; }
+  .tom{ font-size: clamp(1.3rem, 2vw, 2rem); color:var(--text-dim); font-family:'Fraunces', serif; }
 
-  .slide h2{
-    font-family:'Fraunces', serif;
-    font-weight: 500;
-    font-size: clamp(2.4rem, 4.6vw, 4.6rem);
-    line-height: 1.08;
-    margin: 0 0 2.4vh 0;
+  /* ---- Avganger ---- */
+  .slide.avganger-slide{ max-width:100%; width:100%; flex-direction:column; justify-content:center; align-items:stretch; }
+  .avganger-tittel{ font-family:'Fraunces', serif; font-weight:500; font-size:clamp(1.6rem,2.6vw,2.6rem); margin-bottom:2.2vh; }
+  .avganger-grid{ display:grid; grid-template-columns:1fr 1fr; gap:5vw; }
+  .av-kolonne + .av-kolonne{ border-left:1px solid var(--hairline); padding-left:5vw; }
+  .av-kolonne-tittel{ font-family:'Fraunces', serif; font-weight:500; font-size:clamp(1.2rem,1.8vw,1.8rem); margin-bottom:1.4vh; }
+  .av-rad{ display:flex; align-items:center; gap:1.1em; padding:1.2vh 0; border-bottom:1px solid var(--hairline); }
+  .av-rad:last-child{ border-bottom:none; }
+  .av-linje{
+    flex-shrink:0; min-width:2.6em; text-align:center; padding:0.35em 0.6em; border-radius:8px;
+    font-weight:700; font-size:clamp(0.9rem,1.2vw,1.2rem);
+    background: rgba(201,164,103,0.16); color:var(--brass);
   }
-  .slide p{
-    font-size: clamp(1.1rem, 1.7vw, 1.7rem);
-    line-height: 1.5;
-    color: var(--text-dim);
-    margin: 0;
-    max-width: 62ch;
-  }
-  .slide .dato-chip{
-    margin-top: 2.4vh;
-    font-size: clamp(0.95rem, 1.15vw, 1.2rem);
-    color: var(--brass);
-    font-weight: 500;
-  }
+  .av-kolonne.buss .av-linje{ background: rgba(91,138,128,0.2); color:var(--teal); }
+  .av-dest{ flex:1; font-size:clamp(0.95rem,1.4vw,1.4rem); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .av-tid{ flex-shrink:0; text-align:right; }
+  .av-tid .om{ font-size:clamp(0.95rem,1.4vw,1.4rem); font-weight:600; }
+  .av-tid .kl{ display:block; font-size:clamp(0.75rem,0.95vw,0.95rem); color:var(--text-dim); }
+  .av-tom, .av-feil{ color:var(--text-dim); font-size:clamp(0.95rem,1.2vw,1.2rem); }
+  .av-feil{ color:var(--red); }
+  .av-status{ margin-top:2vh; font-size:clamp(0.75rem,0.9vw,0.9rem); color:var(--text-dim); }
 
-  footer{
-    flex-shrink:0;
-    display:flex;
-    justify-content: center;
-    gap: 0.6em;
-    padding-top: 2vh;
-  }
-  .prikk{
-    width: 8px; height: 8px;
-    border-radius: 50%;
-    background: var(--hairline);
-    transition: background 0.4s ease;
-  }
-  .prikk.aktiv{ background: var(--brass); }
+  /* ---- Vær ---- */
+  .slide.vaer-slide{ max-width:100%; width:100%; }
+  .vaer-hoved{ display:flex; align-items:center; gap:4vw; }
+  .vaer-ikon{ flex-shrink:0; width:clamp(6rem,10vw,10rem); height:clamp(6rem,10vw,10rem); }
+  .vaer-naa .sted{ font-family:'Fraunces', serif; font-weight:500; font-size:clamp(1.3rem,1.9vw,1.9rem); margin-bottom:0.6vh; color:var(--text-dim); }
+  .vaer-naa .temp{ font-family:'Fraunces', serif; font-weight:500; font-size:clamp(3.5rem,6.5vw,6.5rem); line-height:1; }
+  .vaer-naa .beskrivelse{ font-size:clamp(1.1rem,1.6vw,1.6rem); color:var(--text-dim); margin-top:0.8vh; }
+  .vaer-detaljer{ margin-top:1vh; font-size:clamp(0.95rem,1.2vw,1.2rem); color:var(--text-dim); display:flex; gap:2em; }
+  .vaer-strip{ display:flex; gap: 3vw; margin-top:5vh; padding-top:3vh; border-top:1px solid var(--hairline); }
+  .vaer-time{ display:flex; flex-direction:column; align-items:center; gap:0.6vh; }
+  .vaer-time .kl{ font-size:clamp(0.85rem,1.05vw,1.05rem); color:var(--text-dim); }
+  .vaer-time svg{ width:clamp(2.2rem,3.4vw,3.4rem); height:clamp(2.2rem,3.4vw,3.4rem); }
+  .vaer-time .t{ font-weight:600; font-size:clamp(1rem,1.3vw,1.3rem); }
+  .vaer-feil{ color:var(--red); font-size:clamp(0.95rem,1.2vw,1.2rem); }
 
-  .tom{
-    font-size: clamp(1.3rem, 2vw, 2rem);
-    color: var(--text-dim);
-    font-family:'Fraunces', serif;
-  }
+  footer{ flex-shrink:0; display:flex; justify-content:center; gap:0.6em; padding-top:2vh; }
+  .prikk{ width:8px; height:8px; border-radius:50%; background:var(--hairline); transition:background 0.4s ease; }
+  .prikk.aktiv{ background:var(--brass); }
 </style>
 </head>
 <body>
@@ -193,25 +155,55 @@
 </header>
 
 <main id="main">
-  <div class="tom" id="tomMelding" style="display:none;">Ingen meldinger lagt inn ennå.</div>
+  <!-- Meldinger-slides settes inn her av JS -->
+
+  <div class="slide avganger-slide" data-varighet="16">
+    <div style="width:100%;">
+      <div class="avganger-tittel">Neste avganger · Jessheim stasjon</div>
+      <div class="avganger-grid">
+        <div class="av-kolonne tog">
+          <div class="av-kolonne-tittel">Tog</div>
+          <div id="togListe"></div>
+        </div>
+        <div class="av-kolonne buss">
+          <div class="av-kolonne-tittel">Buss</div>
+          <div id="bussListe"></div>
+        </div>
+      </div>
+      <div class="av-status" id="avgangerStatus">Henter avganger …</div>
+    </div>
+  </div>
+
+  <div class="slide vaer-slide" data-varighet="14">
+    <div style="width:100%;">
+      <div class="vaer-hoved">
+        <div class="vaer-ikon" id="vaerIkon"></div>
+        <div class="vaer-naa">
+          <div class="sted" id="vaerSted">Gotaasalléen 17, Jessheim</div>
+          <div class="temp" id="vaerTemp">–°</div>
+          <div class="beskrivelse" id="vaerBeskrivelse">Henter værdata …</div>
+          <div class="vaer-detaljer" id="vaerDetaljer"></div>
+        </div>
+      </div>
+      <div class="vaer-strip" id="vaerStrip"></div>
+    </div>
+  </div>
 </main>
 
 <footer id="prikker"></footer>
 
 <script>
-  // ---- Innstillinger ----
-  const VIS_SEKUNDER = 12;        // hvor lenge hver melding vises
-  const OPPDATER_DATA_MIN = 5;    // hvor ofte data.json sjekkes på nytt (minutter)
-  const RELOAD_KL_TIME = 4;       // full reload av siden hver natt kl (0-23), for stabilitet
+  /* ============ Felles innstillinger ============ */
+  const VIS_SEKUNDER_STANDARD = 12;  // standard visningstid for meldinger (sekunder)
+  const RELOAD_KL_TIME = 4;          // full reload av siden hver natt kl (0-23), for stabilitet
 
   const mainEl = document.getElementById('main');
   const prikkerEl = document.getElementById('prikker');
   const sameieNavnEl = document.getElementById('sameieNavn');
-  const tomMeldingEl = document.getElementById('tomMelding');
 
+  /* ============ 1) MELDINGER (data.json) ============ */
+  const OPPDATER_DATA_MIN = 5;
   let meldinger = [];
-  let index = 0;
-  let carouselTimer = null;
 
   function tagKlasse(type){
     if(type === 'viktig') return 'tag viktig';
@@ -224,43 +216,236 @@
     return 'Info';
   }
 
-  function byggSlides(){
-    mainEl.querySelectorAll('.slide').forEach(el => el.remove());
-    prikkerEl.innerHTML = '';
+  function byggMeldingSlide(m){
+    const harBilde = !!m.bilde;
+    const harTekst = !!(m.tekst && m.tekst.trim());
+    const slide = document.createElement('div');
+    slide.className = 'slide melding';
+    slide.dataset.varighet = VIS_SEKUNDER_STANDARD;
+    if(harBilde) slide.classList.add('med-bilde');
+    if(harBilde && !harTekst) slide.classList.add('kun-bilde');
 
-    if(meldinger.length === 0){
-      tomMeldingEl.style.display = 'block';
-      return;
-    }
-    tomMeldingEl.style.display = 'none';
+    const tekstDel = `
+      <div class="tekst-kolonne">
+        <div class="${tagKlasse(m.type)}">${tagTekst(m.type)}</div>
+        <h2>${m.tittel || ''}</h2>
+        ${harTekst ? `<p>${m.tekst.replace(/\n/g,'<br>')}</p>` : ''}
+        ${m.dato ? `<div class="dato-chip">${m.dato}</div>` : ''}
+      </div>
+    `;
+    const bildeDel = harBilde
+      ? `<div class="bilde-kolonne"><img src="${m.bilde}" alt="" onerror="this.parentElement.style.display='none'"></div>`
+      : '';
+    slide.innerHTML = tekstDel + bildeDel;
+    return slide;
+  }
 
-    meldinger.forEach((m, i) => {
-      const harBilde = !!m.bilde;
-      const harTekst = !!(m.tekst && m.tekst.trim());
+  function byggMeldingSlides(){
+    // Fjern kun de gamle melding-slidene (ikke avganger/vær-slidene)
+    mainEl.querySelectorAll('.slide.melding').forEach(el => el.remove());
 
-      const slide = document.createElement('div');
-      slide.className = 'slide';
-      if(harBilde) slide.classList.add('med-bilde');
-      if(harBilde && !harTekst) slide.classList.add('kun-bilde');
-
-      const tekstDel = `
-        <div class="tekst-kolonne">
-          <div class="${tagKlasse(m.type)}">${tagTekst(m.type)}</div>
-          <h2>${m.tittel || ''}</h2>
-          ${harTekst ? `<p>${m.tekst.replace(/\n/g,'<br>')}</p>` : ''}
-          ${m.dato ? `<div class="dato-chip">${m.dato}</div>` : ''}
-        </div>
-      `;
-      const bildeDel = harBilde
-        ? `<div class="bilde-kolonne"><img src="${m.bilde}" alt="" onerror="this.parentElement.style.display='none'"></div>`
-        : '';
-
-      slide.innerHTML = tekstDel + bildeDel;
+    const liste = meldinger.length > 0 ? meldinger : [{ _tom: true }];
+    liste.forEach(m => {
+      let slide;
+      if(m._tom){
+        slide = document.createElement('div');
+        slide.className = 'slide melding';
+        slide.dataset.varighet = VIS_SEKUNDER_STANDARD;
+        slide.innerHTML = `<div class="tekst-kolonne"><div class="tom">Ingen meldinger lagt inn ennå.</div></div>`;
+      } else {
+        slide = byggMeldingSlide(m);
+      }
       mainEl.appendChild(slide);
+    });
 
-      const prikk = document.createElement('div');
-      prikk.className = 'prikk';
-      prikkerEl.appendChild(prikk);
+    // Sørg for at avganger- og vær-slidene alltid kommer sist, i riktig rekkefølge
+    mainEl.appendChild(document.querySelector('.avganger-slide'));
+    mainEl.appendChild(document.querySelector('.vaer-slide'));
+
+    byggPrikker();
+    startKarusell();
+  }
+
+  async function hentMeldinger(){
+    try{
+      const res = await fetch('data.json?t=' + Date.now(), { cache: 'no-store' });
+      const data = await res.json();
+      if(data.sameie) sameieNavnEl.textContent = data.sameie;
+      const nye = Array.isArray(data.meldinger) ? data.meldinger : [];
+      if(JSON.stringify(nye) !== JSON.stringify(meldinger)){
+        meldinger = nye;
+        byggMeldingSlides();
+      }
+    }catch(e){
+      console.error('Klarte ikke hente data.json', e);
+    }
+  }
+
+  /* ============ 2) AVGANGER (Entur) ============ */
+  const STOPPESTED_ID   = 'NSR:StopPlace:344'; // Jessheim stasjon/skysstasjon
+  const ET_CLIENT_NAME  = 'torghuset-infoskjerm';
+  const ANTALL_HENTES   = 30;
+  const MAKS_PER_KOLONNE = 6;
+  const OPPDATER_AVGANGER_SEK = 30;
+  const ENTUR_ENDEPUNKT = 'https://api.entur.io/journey-planner/v3/graphql';
+  const ENTUR_SPORRING = `
+    query($id: String!, $n: Int!) {
+      stopPlace(id: $id) {
+        name
+        estimatedCalls(numberOfDepartures: $n) {
+          expectedDepartureTime
+          destinationDisplay { frontText }
+          serviceJourney { journeyPattern { line { publicCode transportMode } } }
+        }
+      }
+    }
+  `;
+
+  function minutterTil(iso){ return Math.round((new Date(iso) - new Date()) / 60000); }
+  function klokkeslett(iso){ return new Date(iso).toLocaleTimeString('nb-NO', { hour:'2-digit', minute:'2-digit' }); }
+
+  function avgangRadHtml(call){
+    const linje = call.serviceJourney?.journeyPattern?.line?.publicCode || '?';
+    const dest = call.destinationDisplay?.frontText || '';
+    const min = minutterTil(call.expectedDepartureTime);
+    const omTekst = min <= 0 ? 'Nå' : `om ${min} min`;
+    return `
+      <div class="av-rad">
+        <div class="av-linje">${linje}</div>
+        <div class="av-dest">${dest}</div>
+        <div class="av-tid"><span class="om">${omTekst}</span><span class="kl">${klokkeslett(call.expectedDepartureTime)}</span></div>
+      </div>
+    `;
+  }
+  function tegnAvgangKolonne(container, calls, tomTekst){
+    if(calls.length === 0){ container.innerHTML = `<div class="av-tom">${tomTekst}</div>`; return; }
+    container.innerHTML = calls.slice(0, MAKS_PER_KOLONNE).map(avgangRadHtml).join('');
+  }
+
+  async function hentAvganger(){
+    const statusEl = document.getElementById('avgangerStatus');
+    try{
+      const res = await fetch(ENTUR_ENDEPUNKT, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'ET-Client-Name': ET_CLIENT_NAME },
+        body: JSON.stringify({ query: ENTUR_SPORRING, variables: { id: STOPPESTED_ID, n: ANTALL_HENTES } })
+      });
+      if(!res.ok) throw new Error('Entur svarte med feilkode ' + res.status);
+      const json = await res.json();
+      if(json.errors && json.errors.length) throw new Error(json.errors[0].message || 'Ukjent feil fra Entur');
+      const stopPlace = json.data && json.data.stopPlace;
+      if(!stopPlace) throw new Error('Fant ikke stoppestedet.');
+
+      const calls = stopPlace.estimatedCalls || [];
+      const tog = calls.filter(c => c.serviceJourney?.journeyPattern?.line?.transportMode === 'rail');
+      const buss = calls.filter(c => {
+        const m = c.serviceJourney?.journeyPattern?.line?.transportMode;
+        return m === 'bus' || m === 'coach';
+      });
+      tegnAvgangKolonne(document.getElementById('togListe'), tog, 'Ingen togavganger de nærmeste minuttene.');
+      tegnAvgangKolonne(document.getElementById('bussListe'), buss, 'Ingen bussavganger de nærmeste minuttene.');
+      statusEl.textContent = 'Sist oppdatert ' + new Date().toLocaleTimeString('nb-NO', { hour:'2-digit', minute:'2-digit', second:'2-digit' });
+    }catch(e){
+      console.error('Klarte ikke hente avganger', e);
+      statusEl.innerHTML = `<span class="av-feil">Klarte ikke hente avganger: ${e.message}</span>`;
+    }
+  }
+
+  /* ============ 3) VÆR (Meteorologisk institutt / MET) ============ */
+  const VAER_LAT = 60.1403392;
+  const VAER_LON = 11.1742373;
+  const VAER_STED_NAVN = 'Gotaasalléen 17, Jessheim';
+  const OPPDATER_VAER_MIN = 20;
+  const VAER_ENDEPUNKT = `https://api.met.no/weatherapi/locationforecast/2.0/compact?lat=${VAER_LAT}&lon=${VAER_LON}`;
+
+  const VAER_LABEL = {
+    clearsky: 'Klarvær', fair: 'Lettskyet', partlycloudy: 'Delvis skyet', cloudy: 'Skyet',
+    rainshowers: 'Regnbyger', rain: 'Regn', lightrain: 'Lett regn', heavyrain: 'Kraftig regn',
+    lightrainshowers: 'Lette regnbyger', heavyrainshowers: 'Kraftige regnbyger',
+    sleet: 'Sludd', sleetshowers: 'Sluddbyger',
+    snow: 'Snø', lightsnow: 'Lett snø', heavysnow: 'Kraftig snøvær', snowshowers: 'Snøbyger',
+    fog: 'Tåke', thunder: 'Torden'
+  };
+  function vaerLabel(code){
+    const base = (code || '').replace('_day','').replace('_night','').replace('_polartwilight','');
+    return VAER_LABEL[base] || 'Ukjent';
+  }
+  function vaerIkonSvg(code, storrelse){
+    const c = code || '';
+    const natt = c.includes('_night');
+    const felles = `viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" style="width:${storrelse};height:${storrelse}"`;
+    const sol = `<circle cx="50" cy="46" r="20" fill="#C9A467"/>`;
+    const mane = `<path d="M60 30a22 22 0 1 0 10 32A18 18 0 0 1 60 30Z" fill="#C9A467"/>`;
+    const himmellegeme = natt ? mane : sol;
+    const sky = `<path d="M25 68a14 14 0 0 1 4-27 18 18 0 0 1 35-6 15 15 0 0 1 11 27 4 4 0 0 1 0 6H25a4 4 0 0 1 0-0Z" fill="#A7AEB6"/>`;
+    if(c.startsWith('clearsky')){ return `<svg ${felles}>${himmellegeme}</svg>`; }
+    if(c.startsWith('fair')){ return `<svg ${felles}><g transform="translate(-8,-8) scale(0.85)">${himmellegeme}</g>${sky}</svg>`; }
+    if(c.startsWith('partlycloudy')){ return `<svg ${felles}><g transform="translate(-14,-12) scale(0.7)">${himmellegeme}</g>${sky}</svg>`; }
+    if(c.startsWith('cloudy') || c.startsWith('fog')){ return `<svg ${felles}>${sky}<path d="M25 68a14 14 0 0 1 4-27 18 18 0 0 1 35-6 15 15 0 0 1 11 27" fill="none" stroke="#A7AEB6" stroke-width="2"/></svg>`; }
+    if(c.includes('rain') || c.includes('sleet')){
+      return `<svg ${felles}>${sky}<line x1="35" y1="76" x2="30" y2="90" stroke="#5B8A80" stroke-width="4" stroke-linecap="round"/><line x1="50" y1="76" x2="45" y2="90" stroke="#5B8A80" stroke-width="4" stroke-linecap="round"/><line x1="65" y1="76" x2="60" y2="90" stroke="#5B8A80" stroke-width="4" stroke-linecap="round"/></svg>`;
+    }
+    if(c.includes('snow')){
+      return `<svg ${felles}>${sky}<circle cx="35" cy="82" r="3" fill="#F1EEE6"/><circle cx="50" cy="88" r="3" fill="#F1EEE6"/><circle cx="65" cy="82" r="3" fill="#F1EEE6"/></svg>`;
+    }
+    if(c.includes('thunder')){
+      return `<svg ${felles}>${sky}<path d="M48 74l-8 14h8l-4 10 14-16h-8l6-8Z" fill="#C9A467"/></svg>`;
+    }
+    return `<svg ${felles}>${sky}</svg>`;
+  }
+
+  async function hentVaer(){
+    try{
+      const res = await fetch(VAER_ENDEPUNKT);
+      if(!res.ok) throw new Error('Værtjenesten svarte med feilkode ' + res.status);
+      const json = await res.json();
+      const serie = json.properties?.timeseries;
+      if(!serie || serie.length === 0) throw new Error('Fant ingen værdata.');
+
+      const naa = serie[0];
+      const detaljer = naa.data.instant.details;
+      const symbol = naa.data.next_1_hours?.summary?.symbol_code || naa.data.next_6_hours?.summary?.symbol_code || 'cloudy';
+      const nedbor = naa.data.next_1_hours?.details?.precipitation_amount;
+
+      document.getElementById('vaerSted').textContent = VAER_STED_NAVN;
+      document.getElementById('vaerTemp').textContent = Math.round(detaljer.air_temperature) + '°';
+      document.getElementById('vaerBeskrivelse').textContent = vaerLabel(symbol);
+      document.getElementById('vaerIkon').innerHTML = vaerIkonSvg(symbol, '100%');
+
+      let detaljTekst = `Vind ${detaljer.wind_speed.toFixed(0)} m/s`;
+      if(nedbor !== undefined && nedbor > 0) detaljTekst += ` · Nedbør ${nedbor} mm`;
+      document.getElementById('vaerDetaljer').textContent = detaljTekst;
+
+      const stripEl = document.getElementById('vaerStrip');
+      const stripPunkter = [3, 6, 9, 12].map(i => serie[i]).filter(Boolean);
+      stripEl.innerHTML = stripPunkter.map(p => {
+        const t = new Date(p.time);
+        const sym = p.data.next_1_hours?.summary?.symbol_code || p.data.next_6_hours?.summary?.symbol_code || 'cloudy';
+        return `
+          <div class="vaer-time">
+            <span class="kl">${t.toLocaleTimeString('nb-NO', { hour:'2-digit', minute:'2-digit' })}</span>
+            ${vaerIkonSvg(sym, '100%')}
+            <span class="t">${Math.round(p.data.instant.details.air_temperature)}°</span>
+          </div>
+        `;
+      }).join('');
+    }catch(e){
+      console.error('Klarte ikke hente værdata', e);
+      document.getElementById('vaerBeskrivelse').innerHTML = `<span class="vaer-feil">Klarte ikke hente værdata: ${e.message}</span>`;
+    }
+  }
+
+  /* ============ Karusell (felles for alle slidetyper) ============ */
+  let slideIndex = 0;
+  let karuselTimer = null;
+
+  function byggPrikker(){
+    const slides = mainEl.querySelectorAll('.slide');
+    prikkerEl.innerHTML = '';
+    slides.forEach(() => {
+      const p = document.createElement('div');
+      p.className = 'prikk';
+      prikkerEl.appendChild(p);
     });
   }
 
@@ -271,50 +456,44 @@
     prikker.forEach((p, j) => p.classList.toggle('aktiv', j === i));
   }
 
+  function nesteSlide(){
+    const slides = mainEl.querySelectorAll('.slide');
+    if(slides.length === 0) return;
+    slideIndex = slideIndex % slides.length;
+    visSlide(slideIndex);
+    const varighet = parseFloat(slides[slideIndex].dataset.varighet) || VIS_SEKUNDER_STANDARD;
+    if(karuselTimer) clearTimeout(karuselTimer);
+    karuselTimer = setTimeout(() => {
+      slideIndex = (slideIndex + 1) % slides.length;
+      nesteSlide();
+    }, varighet * 1000);
+  }
+
   function startKarusell(){
-    if(carouselTimer) clearInterval(carouselTimer);
-    if(meldinger.length === 0) return;
-    index = 0;
-    visSlide(index);
-    carouselTimer = setInterval(() => {
-      index = (index + 1) % meldinger.length;
-      visSlide(index);
-    }, VIS_SEKUNDER * 1000);
+    slideIndex = 0;
+    nesteSlide();
   }
 
-  async function hentData(){
-    try{
-      const res = await fetch('data.json?t=' + Date.now(), { cache: 'no-store' });
-      const data = await res.json();
-      if(data.sameie) sameieNavnEl.textContent = data.sameie;
-      const nyeMeldinger = Array.isArray(data.meldinger) ? data.meldinger : [];
-
-      // Bare bygg om karusellen på nytt hvis innholdet faktisk har endret seg
-      if(JSON.stringify(nyeMeldinger) !== JSON.stringify(meldinger)){
-        meldinger = nyeMeldinger;
-        byggSlides();
-        startKarusell();
-      }
-    }catch(e){
-      console.error('Klarte ikke hente data.json', e);
-    }
-  }
-
+  /* ============ Klokke ============ */
   function oppdaterKlokke(){
     const now = new Date();
     document.getElementById('klokke').textContent = now.toLocaleTimeString('nb-NO', { hour:'2-digit', minute:'2-digit' });
     document.getElementById('dato').textContent = now.toLocaleDateString('nb-NO', { weekday:'long', day:'numeric', month:'long' });
-
-    // Nattlig full reload for stabilitet på skjermer som står på i dagevis
     if(now.getHours() === RELOAD_KL_TIME && now.getMinutes() === 0 && now.getSeconds() < 2){
       location.reload();
     }
   }
 
-  hentData();
+  /* ============ Oppstart ============ */
+  hentMeldinger();       // bygger også slides og starter karusellen
+  hentAvganger();
+  hentVaer();
   oppdaterKlokke();
+
   setInterval(oppdaterKlokke, 1000);
-  setInterval(hentData, OPPDATER_DATA_MIN * 60 * 1000);
+  setInterval(hentMeldinger, OPPDATER_DATA_MIN * 60 * 1000);
+  setInterval(hentAvganger, OPPDATER_AVGANGER_SEK * 1000);
+  setInterval(hentVaer, OPPDATER_VAER_MIN * 60 * 1000);
 </script>
 
 </body>
