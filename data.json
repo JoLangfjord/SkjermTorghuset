@@ -3,28 +3,41 @@
   "meldinger": [
     {
       "type": "viktig",
-      "tittel": "Dette er en infoskjerm",
-      "tekst": "Rediger filen data.json på GitHub for å legge inn egne meldinger. Denne meldingen kan du bare slette.",
-      "dato": ""
+      "tittel": "Malerarbeid Torghuset",
+      "tekst": "Kjære beboere,
+
+ 
+
+Vi ønsker å informere om:
+
+ 
+
+Stillaset på deler av bygget vil bli demontert fra og med mandag 31. august.
+
+ 
+
+Det vil bli satt opp nytt stillas på resterende deler av bygget fra og med tirsdag 1. september.
+
+For å sikre en trygg og effektiv gjennomføring av arbeidet, ber vi alle berørte beboere om å gjøre følgende før oppstart:
+
+Fjerne alle møbler fra balkonger og uteplasser.
+Fjerne planter, blomsterkasser og øvrige løse gjenstander.
+Heve/samle opp screens og markiser slik at disse ikke kommer i konflikt med stillaset eller arbeidet.
+Fjerne flagg oppheng etc.
+ 
+
+Det er viktig at områdene er ryddet innen mandag kveld 31. august.
+
+Vi beklager ulempene dette måtte medføre og takker for forståelsen og samarbeidet.
+
+ 
+
+Takk for tålmodigheten og samarbeidet gjennom prosjektperioden.
+
+ 
+
+Med vennlig hilsen
+
+Styret",
+      "dato": "07.09.2026"
     },
-    {
-      "type": "info",
-      "tittel": "Eksempel: driftsmelding",
-      "tekst": "Bruk 'info' til vanlige beskjeder, f.eks. om søppelhåndtering, vaktmestertjenester eller praktiske rutiner.",
-      "dato": ""
-    },
-    {
-      "type": "arrangement",
-      "tittel": "Eksempel: dugnad",
-      "tekst": "Bruk 'arrangement' til ting med en dato, f.eks. dugnad, årsmøte eller befaring.",
-      "dato": "Lørdag 20. september kl. 11:00"
-    },
-    {
-      "type": "info",
-      "tittel": "Eksempel: melding med bilde",
-      "tekst": "Legg til feltet 'bilde' for å vise et bilde ved siden av teksten. Last opp bildet i 'bilder'-mappen i repoet, og skriv inn filnavnet her.",
-      "bilde": "bilder/eksempel.jpg",
-      "dato": ""
-    }
-  ]
-}
