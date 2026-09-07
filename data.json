@@ -1,0 +1,30 @@
+{
+  "sameie": "Torghuset",
+  "meldinger": [
+    {
+      "type": "viktig",
+      "tittel": "Dette er en infoskjerm",
+      "tekst": "Rediger filen data.json på GitHub for å legge inn egne meldinger. Denne meldingen kan du bare slette.",
+      "dato": ""
+    },
+    {
+      "type": "info",
+      "tittel": "Eksempel: driftsmelding",
+      "tekst": "Bruk 'info' til vanlige beskjeder, f.eks. om søppelhåndtering, vaktmestertjenester eller praktiske rutiner.",
+      "dato": ""
+    },
+    {
+      "type": "arrangement",
+      "tittel": "Eksempel: dugnad",
+      "tekst": "Bruk 'arrangement' til ting med en dato, f.eks. dugnad, årsmøte eller befaring.",
+      "dato": "Lørdag 20. september kl. 11:00"
+    },
+    {
+      "type": "info",
+      "tittel": "Eksempel: melding med bilde",
+      "tekst": "Legg til feltet 'bilde' for å vise et bilde ved siden av teksten. Last opp bildet i 'bilder'-mappen i repoet, og skriv inn filnavnet her.",
+      "bilde": "bilder/eksempel.jpg",
+      "dato": ""
+    }
+  ]
+}

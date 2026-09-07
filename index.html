@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Infoskjerm</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg: #182029;
+    --bg-panel: #1F2933;
+    --text: #F1EEE6;
+    --text-dim: #A7AEB6;
+    --brass: #C9A467;
+    --teal: #5B8A80;
+    --red: #C1666B;
+    --hairline: rgba(241,238,230,0.14);
+  }
+  *{ box-sizing: border-box; }
+  html, body{
+    margin:0; padding:0; height:100%;
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Inter', system-ui, sans-serif;
+    overflow: hidden;
+  }
+  body{
+    display:flex;
+    flex-direction:column;
+    padding: 3.2vh 4vw 3vh 4vw;
+  }
+
+  header{
+    display:flex;
+    align-items:baseline;
+    justify-content:space-between;
+    padding-bottom: 2.2vh;
+    border-bottom: 1px solid var(--hairline);
+    flex-shrink:0;
+  }
+  .sameie-navn{
+    font-family:'Fraunces', serif;
+    font-weight: 500;
+    font-size: clamp(1.6rem, 2.6vw, 2.6rem);
+    letter-spacing: 0.01em;
+  }
+  .klokke-wrap{
+    display:flex;
+    align-items:baseline;
+    gap: 1.4vw;
+    font-variant-numeric: tabular-nums;
+  }
+  .klokke{
+    font-size: clamp(1.6rem, 2.8vw, 2.8rem);
+    font-weight: 600;
+  }
+  .dato{
+    font-size: clamp(0.95rem, 1.3vw, 1.3rem);
+    color: var(--text-dim);
+    text-transform: capitalize;
+  }
+
+  main{
+    flex: 1;
+    position: relative;
+    display:flex;
+    align-items:center;
+  }
+  .slide{
+    position:absolute;
+    inset:0;
+    display:flex;
+    align-items:center;
+    max-width: 74%;
+    opacity:0;
+    transform: translateY(10px);
+    transition: opacity 0.7s ease, transform 0.7s ease;
+    pointer-events:none;
+  }
+  .slide.aktiv{
+    opacity:1;
+    transform: translateY(0);
+    pointer-events:auto;
+  }
+  .tekst-kolonne{
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+  }
+
+  /* Slide med bilde og tekst side om side */
+  .slide.med-bilde{
+    max-width: 90%;
+    gap: 4.5vw;
+  }
+  .slide.med-bilde .tekst-kolonne{ flex: 0 0 42%; }
+  .bilde-kolonne{
+    flex: 1;
+    height: 62vh;
+    border-radius: 14px;
+    overflow: hidden;
+    border: 1px solid var(--hairline);
+    background: var(--bg-panel);
+  }
+  .bilde-kolonne img{
+    width:100%; height:100%;
+    object-fit: cover;
+    display:block;
+  }
+
+  /* Slide som kun er et bilde (poster/plakat), uten brødtekst */
+  .slide.kun-bilde{
+    flex-direction: column;
+    justify-content: center;
+    max-width: 74%;
+    gap: 2vh;
+  }
+  .slide.kun-bilde .bilde-kolonne{
+    flex: none;
+    width: 100%;
+    height: 68vh;
+  }
+  .slide.kun-bilde .tekst-kolonne{ flex: none; }
+  .tag{
+    display:inline-flex;
+    align-items:center;
+    gap:0.5em;
+    align-self:flex-start;
+    padding: 0.4em 0.9em;
+    border-radius: 999px;
+    font-size: clamp(0.85rem, 1vw, 1.05rem);
+    font-weight: 600;
+    margin-bottom: 2.2vh;
+    background: rgba(201,164,103,0.16);
+    color: var(--brass);
+  }
+  .tag.viktig{ background: rgba(193,102,107,0.18); color: var(--red); }
+  .tag.arrangement{ background: rgba(91,138,128,0.2); color: var(--teal); }
+
+  .slide h2{
+    font-family:'Fraunces', serif;
+    font-weight: 500;
+    font-size: clamp(2.4rem, 4.6vw, 4.6rem);
+    line-height: 1.08;
+    margin: 0 0 2.4vh 0;
+  }
+  .slide p{
+    font-size: clamp(1.1rem, 1.7vw, 1.7rem);
+    line-height: 1.5;
+    color: var(--text-dim);
+    margin: 0;
+    max-width: 62ch;
+  }
+  .slide .dato-chip{
+    margin-top: 2.4vh;
+    font-size: clamp(0.95rem, 1.15vw, 1.2rem);
+    color: var(--brass);
+    font-weight: 500;
+  }
+
+  footer{
+    flex-shrink:0;
+    display:flex;
+    justify-content: center;
+    gap: 0.6em;
+    padding-top: 2vh;
+  }
+  .prikk{
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: var(--hairline);
+    transition: background 0.4s ease;
+  }
+  .prikk.aktiv{ background: var(--brass); }
+
+  .tom{
+    font-size: clamp(1.3rem, 2vw, 2rem);
+    color: var(--text-dim);
+    font-family:'Fraunces', serif;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="sameie-navn" id="sameieNavn">Infoskjerm</div>
+  <div class="klokke-wrap">
+    <div class="klokke" id="klokke">--:--</div>
+    <div class="dato" id="dato">–</div>
+  </div>
+</header>
+
+<main id="main">
+  <div class="tom" id="tomMelding" style="display:none;">Ingen meldinger lagt inn ennå.</div>
+</main>
+
+<footer id="prikker"></footer>
+
+<script>
+  // ---- Innstillinger ----
+  const VIS_SEKUNDER = 12;        // hvor lenge hver melding vises
+  const OPPDATER_DATA_MIN = 5;    // hvor ofte data.json sjekkes på nytt (minutter)
+  const RELOAD_KL_TIME = 4;       // full reload av siden hver natt kl (0-23), for stabilitet
+
+  const mainEl = document.getElementById('main');
+  const prikkerEl = document.getElementById('prikker');
+  const sameieNavnEl = document.getElementById('sameieNavn');
+  const tomMeldingEl = document.getElementById('tomMelding');
+
+  let meldinger = [];
+  let index = 0;
+  let carouselTimer = null;
+
+  function tagKlasse(type){
+    if(type === 'viktig') return 'tag viktig';
+    if(type === 'arrangement') return 'tag arrangement';
+    return 'tag';
+  }
+  function tagTekst(type){
+    if(type === 'viktig') return 'Viktig';
+    if(type === 'arrangement') return 'Arrangement';
+    return 'Info';
+  }
+
+  function byggSlides(){
+    mainEl.querySelectorAll('.slide').forEach(el => el.remove());
+    prikkerEl.innerHTML = '';
+
+    if(meldinger.length === 0){
+      tomMeldingEl.style.display = 'block';
+      return;
+    }
+    tomMeldingEl.style.display = 'none';
+
+    meldinger.forEach((m, i) => {
+      const harBilde = !!m.bilde;
+      const harTekst = !!(m.tekst && m.tekst.trim());
+
+      const slide = document.createElement('div');
+      slide.className = 'slide';
+      if(harBilde) slide.classList.add('med-bilde');
+      if(harBilde && !harTekst) slide.classList.add('kun-bilde');
+
+      const tekstDel = `
+        <div class="tekst-kolonne">
+          <div class="${tagKlasse(m.type)}">${tagTekst(m.type)}</div>
+          <h2>${m.tittel || ''}</h2>
+          ${harTekst ? `<p>${m.tekst.replace(/\n/g,'<br>')}</p>` : ''}
+          ${m.dato ? `<div class="dato-chip">${m.dato}</div>` : ''}
+        </div>
+      `;
+      const bildeDel = harBilde
+        ? `<div class="bilde-kolonne"><img src="${m.bilde}" alt="" onerror="this.parentElement.style.display='none'"></div>`
+        : '';
+
+      slide.innerHTML = tekstDel + bildeDel;
+      mainEl.appendChild(slide);
+
+      const prikk = document.createElement('div');
+      prikk.className = 'prikk';
+      prikkerEl.appendChild(prikk);
+    });
+  }
+
+  function visSlide(i){
+    const slides = mainEl.querySelectorAll('.slide');
+    const prikker = prikkerEl.querySelectorAll('.prikk');
+    slides.forEach((s, j) => s.classList.toggle('aktiv', j === i));
+    prikker.forEach((p, j) => p.classList.toggle('aktiv', j === i));
+  }
+
+  function startKarusell(){
+    if(carouselTimer) clearInterval(carouselTimer);
+    if(meldinger.length === 0) return;
+    index = 0;
+    visSlide(index);
+    carouselTimer = setInterval(() => {
+      index = (index + 1) % meldinger.length;
+      visSlide(index);
+    }, VIS_SEKUNDER * 1000);
+  }
+
+  async function hentData(){
+    try{
+      const res = await fetch('data.json?t=' + Date.now(), { cache: 'no-store' });
+      const data = await res.json();
+      if(data.sameie) sameieNavnEl.textContent = data.sameie;
+      const nyeMeldinger = Array.isArray(data.meldinger) ? data.meldinger : [];
+
+      // Bare bygg om karusellen på nytt hvis innholdet faktisk har endret seg
+      if(JSON.stringify(nyeMeldinger) !== JSON.stringify(meldinger)){
+        meldinger = nyeMeldinger;
+        byggSlides();
+        startKarusell();
+      }
+    }catch(e){
+      console.error('Klarte ikke hente data.json', e);
+    }
+  }
+
+  function oppdaterKlokke(){
+    const now = new Date();
+    document.getElementById('klokke').textContent = now.toLocaleTimeString('nb-NO', { hour:'2-digit', minute:'2-digit' });
+    document.getElementById('dato').textContent = now.toLocaleDateString('nb-NO', { weekday:'long', day:'numeric', month:'long' });
+
+    // Nattlig full reload for stabilitet på skjermer som står på i dagevis
+    if(now.getHours() === RELOAD_KL_TIME && now.getMinutes() === 0 && now.getSeconds() < 2){
+      location.reload();
+    }
+  }
+
+  hentData();
+  oppdaterKlokke();
+  setInterval(oppdaterKlokke, 1000);
+  setInterval(hentData, OPPDATER_DATA_MIN * 60 * 1000);
+</script>
+
+</body>
+</html>
