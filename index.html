@@ -207,6 +207,10 @@
         document.body.appendChild(banner);
       }
       banner.textContent = 'JS-feil (linje ' + line + '): ' + msg;
+      clearTimeout(banner._skjulTimer);
+      banner._skjulTimer = setTimeout(function(){
+        if(banner.parentNode) banner.parentNode.removeChild(banner);
+      }, 8000);
     }catch(e){}
     return false;
   };
