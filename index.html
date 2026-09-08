@@ -196,17 +196,44 @@
 <footer id="prikker"></footer>
 
 <script>
-  /* ============ Felles innstillinger ============ */
-  const VIS_SEKUNDER_STANDARD = 12;  // standard visningstid for meldinger (sekunder)
-  const RELOAD_KL_TIME = 4;          // full reload av siden hver natt kl (0-23), for stabilitet
+  /* ============ Feilbanner (synlig på skjermen hvis noe krasjer) ============ */
+  window.onerror = function(msg, src, line, col, err){
+    try{
+      var banner = document.getElementById('jsFeilBanner');
+      if(!banner){
+        banner = document.createElement('div');
+        banner.id = 'jsFeilBanner';
+        banner.style.cssText = 'position:fixed;top:0;left:0;right:0;background:#C1666B;color:#fff;font-family:sans-serif;font-size:14px;padding:8px 14px;z-index:9999;';
+        document.body.appendChild(banner);
+      }
+      banner.textContent = 'JS-feil (linje ' + line + '): ' + msg;
+    }catch(e){}
+    return false;
+  };
 
-  const mainEl = document.getElementById('main');
-  const prikkerEl = document.getElementById('prikker');
-  const sameieNavnEl = document.getElementById('sameieNavn');
+  /* ============ Felles innstillinger ============ */
+  var VIS_SEKUNDER_STANDARD = 12;
+  var RELOAD_KL_TIME = 4;
+
+  var mainEl = document.getElementById('main');
+  var prikkerEl = document.getElementById('prikker');
+  var sameieNavnEl = document.getElementById('sameieNavn');
+
+  function get(obj, path, fallback){
+    try{
+      var parts = path.split('.');
+      var cur = obj;
+      for(var i=0;i<parts.length;i++){
+        if(cur === null || cur === undefined) return fallback;
+        cur = cur[parts[i]];
+      }
+      return (cur === undefined || cur === null) ? fallback : cur;
+    }catch(e){ return fallback; }
+  }
 
   /* ============ 1) MELDINGER (data.json) ============ */
-  const OPPDATER_DATA_MIN = 5;
-  let meldinger = [];
+  var OPPDATER_DATA_MIN = 5;
+  var meldinger = [];
 
   function tagKlasse(type){
     if(type === 'viktig') return 'tag viktig';
@@ -220,48 +247,47 @@
   }
 
   function byggMeldingSlide(m){
-    const harBilde = !!m.bilde;
-    const harTekst = !!(m.tekst && m.tekst.trim());
-    const slide = document.createElement('div');
+    var harBilde = !!m.bilde;
+    var harTekst = !!(m.tekst && m.tekst.replace(/^\s+|\s+$/g, ''));
+    var slide = document.createElement('div');
     slide.className = 'slide melding';
-    slide.dataset.varighet = VIS_SEKUNDER_STANDARD;
-    if(harBilde) slide.classList.add('med-bilde');
-    if(harBilde && !harTekst) slide.classList.add('kun-bilde');
+    slide.setAttribute('data-varighet', VIS_SEKUNDER_STANDARD);
+    if(harBilde) slide.className += ' med-bilde';
+    if(harBilde && !harTekst) slide.className += ' kun-bilde';
 
-    const tekstDel = `
-      <div class="tekst-kolonne">
-        <div class="${tagKlasse(m.type)}">${tagTekst(m.type)}</div>
-        <h2>${m.tittel || ''}</h2>
-        ${harTekst ? `<p>${m.tekst.replace(/\n/g,'<br>')}</p>` : ''}
-        ${m.dato ? `<div class="dato-chip">${m.dato}</div>` : ''}
-      </div>
-    `;
-    const bildeDel = harBilde
-      ? `<div class="bilde-kolonne"><img src="${m.bilde}" alt="" onerror="this.parentElement.style.display='none'"></div>`
+    var tekstDel = ''
+      + '<div class="tekst-kolonne">'
+      + '<div class="' + tagKlasse(m.type) + '">' + tagTekst(m.type) + '</div>'
+      + '<h2>' + (m.tittel || '') + '</h2>'
+      + (harTekst ? ('<p>' + m.tekst.replace(/\n/g, '<br>') + '</p>') : '')
+      + (m.dato ? ('<div class="dato-chip">' + m.dato + '</div>') : '')
+      + '</div>';
+    var bildeDel = harBilde
+      ? ('<div class="bilde-kolonne"><img src="' + m.bilde + '" alt="" onerror="this.parentElement.style.display=\'none\'"></div>')
       : '';
     slide.innerHTML = tekstDel + bildeDel;
     return slide;
   }
 
   function byggMeldingSlides(){
-    // Fjern kun de gamle melding-slidene (ikke avganger/vær-slidene)
-    mainEl.querySelectorAll('.slide.melding').forEach(el => el.remove());
+    var gamle = mainEl.querySelectorAll('.slide.melding');
+    for(var i=0; i<gamle.length; i++){ gamle[i].parentNode.removeChild(gamle[i]); }
 
-    const liste = meldinger.length > 0 ? meldinger : [{ _tom: true }];
-    liste.forEach(m => {
-      let slide;
+    var liste = meldinger.length > 0 ? meldinger : [{ _tom: true }];
+    for(var j=0; j<liste.length; j++){
+      var m = liste[j];
+      var slide;
       if(m._tom){
         slide = document.createElement('div');
         slide.className = 'slide melding';
-        slide.dataset.varighet = VIS_SEKUNDER_STANDARD;
-        slide.innerHTML = `<div class="tekst-kolonne"><div class="tom">Ingen meldinger lagt inn ennå.</div></div>`;
+        slide.setAttribute('data-varighet', VIS_SEKUNDER_STANDARD);
+        slide.innerHTML = '<div class="tekst-kolonne"><div class="tom">Ingen meldinger lagt inn ennå.</div></div>';
       } else {
         slide = byggMeldingSlide(m);
       }
       mainEl.appendChild(slide);
-    });
+    }
 
-    // Sørg for at avganger- og vær-slidene alltid kommer sist, i riktig rekkefølge
     mainEl.appendChild(document.querySelector('.avganger-slide'));
     mainEl.appendChild(document.querySelector('.vaer-slide'));
 
@@ -269,109 +295,116 @@
     startKarusell();
   }
 
-  async function hentMeldinger(){
-    try{
-      const res = await fetch('data.json?t=' + Date.now(), { cache: 'no-store' });
-      const data = await res.json();
-      if(data.sameie) sameieNavnEl.textContent = data.sameie;
-      const nye = Array.isArray(data.meldinger) ? data.meldinger : [];
-      if(JSON.stringify(nye) !== JSON.stringify(meldinger)){
-        meldinger = nye;
-        byggMeldingSlides();
-      }
-    }catch(e){
-      console.error('Klarte ikke hente data.json', e);
-    }
+  function hentMeldinger(){
+    fetch('data.json?t=' + Date.now(), { cache: 'no-store' })
+      .then(function(res){ return res.json(); })
+      .then(function(data){
+        if(data.sameie) sameieNavnEl.textContent = data.sameie;
+        var nye = Array.isArray(data.meldinger) ? data.meldinger : [];
+        if(JSON.stringify(nye) !== JSON.stringify(meldinger)){
+          meldinger = nye;
+          byggMeldingSlides();
+        }
+      })
+      .catch(function(e){ console.error('Klarte ikke hente data.json', e); });
   }
 
   /* ============ 2) AVGANGER (Entur) ============ */
-  const STOPPESTED_IDER = [
-    'NSR:StopPlace:344',   // Jessheim stasjon (tog)
-    'NSR:StopPlace:4961',  // Jessheim bussterminal (buss)
+  var STOPPESTED_IDER = [
+    'NSR:StopPlace:344',
+    'NSR:StopPlace:4961'
   ];
-  const ET_CLIENT_NAME  = 'torghuset-infoskjerm';
-  const ANTALL_HENTES   = 60;
-  const MAKS_PER_KOLONNE = 6;
-  const OPPDATER_AVGANGER_SEK = 30;
-  const ENTUR_ENDEPUNKT = 'https://api.entur.io/journey-planner/v3/graphql';
-  const ENTUR_SPORRING = `
-    query($id: String!, $n: Int!) {
-      stopPlace(id: $id) {
-        name
-        estimatedCalls(numberOfDepartures: $n) {
-          expectedDepartureTime
-          destinationDisplay { frontText }
-          serviceJourney { journeyPattern { line { publicCode transportMode } } }
-        }
-      }
-    }
-  `;
+  var ET_CLIENT_NAME  = 'torghuset-infoskjerm';
+  var ANTALL_HENTES   = 60;
+  var MAKS_PER_KOLONNE = 6;
+  var OPPDATER_AVGANGER_SEK = 30;
+  var ENTUR_ENDEPUNKT = 'https://api.entur.io/journey-planner/v3/graphql';
+  var ENTUR_SPORRING = [
+    'query($id: String!, $n: Int!) {',
+    '  stopPlace(id: $id) {',
+    '    name',
+    '    estimatedCalls(numberOfDepartures: $n) {',
+    '      expectedDepartureTime',
+    '      destinationDisplay { frontText }',
+    '      serviceJourney { journeyPattern { line { publicCode transportMode } } }',
+    '    }',
+    '  }',
+    '}'
+  ].join('\n');
 
   function minutterTil(iso){ return Math.round((new Date(iso) - new Date()) / 60000); }
   function klokkeslett(iso){ return new Date(iso).toLocaleTimeString('nb-NO', { hour:'2-digit', minute:'2-digit' }); }
 
   function avgangRadHtml(call){
-    const linje = call.serviceJourney?.journeyPattern?.line?.publicCode || '?';
-    const dest = call.destinationDisplay?.frontText || '';
-    const min = minutterTil(call.expectedDepartureTime);
-    const omTekst = min <= 0 ? 'Nå' : `om ${min} min`;
-    return `
-      <div class="av-rad">
-        <div class="av-linje">${linje}</div>
-        <div class="av-dest">${dest}</div>
-        <div class="av-tid"><span class="om">${omTekst}</span><span class="kl">${klokkeslett(call.expectedDepartureTime)}</span></div>
-      </div>
-    `;
+    var linje = get(call, 'serviceJourney.journeyPattern.line.publicCode', '?');
+    var dest = get(call, 'destinationDisplay.frontText', '');
+    var min = minutterTil(call.expectedDepartureTime);
+    var omTekst = min <= 0 ? 'Nå' : ('om ' + min + ' min');
+    return ''
+      + '<div class="av-rad">'
+      + '<div class="av-linje">' + linje + '</div>'
+      + '<div class="av-dest">' + dest + '</div>'
+      + '<div class="av-tid"><span class="om">' + omTekst + '</span><span class="kl">' + klokkeslett(call.expectedDepartureTime) + '</span></div>'
+      + '</div>';
   }
   function tegnAvgangKolonne(container, calls, tomTekst){
-    if(calls.length === 0){ container.innerHTML = `<div class="av-tom">${tomTekst}</div>`; return; }
-    container.innerHTML = calls.slice(0, MAKS_PER_KOLONNE).map(avgangRadHtml).join('');
+    if(calls.length === 0){ container.innerHTML = '<div class="av-tom">' + tomTekst + '</div>'; return; }
+    var html = '';
+    for(var i=0; i<Math.min(calls.length, MAKS_PER_KOLONNE); i++){ html += avgangRadHtml(calls[i]); }
+    container.innerHTML = html;
   }
 
-  async function hentAvganger(){
-    const statusEl = document.getElementById('avgangerStatus');
-    try{
-      const svar = await Promise.all(STOPPESTED_IDER.map(id =>
+  function hentAvganger(){
+    var statusEl = document.getElementById('avgangerStatus');
+    var kall = [];
+    for(var i=0; i<STOPPESTED_IDER.length; i++){
+      kall.push(
         fetch(ENTUR_ENDEPUNKT, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json', 'ET-Client-Name': ET_CLIENT_NAME },
-          body: JSON.stringify({ query: ENTUR_SPORRING, variables: { id, n: ANTALL_HENTES } })
-        }).then(res => {
+          body: JSON.stringify({ query: ENTUR_SPORRING, variables: { id: STOPPESTED_IDER[i], n: ANTALL_HENTES } })
+        }).then(function(res){
           if(!res.ok) throw new Error('Entur svarte med feilkode ' + res.status);
           return res.json();
         })
-      ));
+      );
+    }
 
-      let alleCalls = [];
-      svar.forEach(json => {
-        if(json.errors && json.errors.length) throw new Error(json.errors[0].message || 'Ukjent feil fra Entur');
-        const calls = json.data?.stopPlace?.estimatedCalls || [];
+    Promise.all(kall).then(function(svar){
+      var alleCalls = [];
+      for(var i=0; i<svar.length; i++){
+        var json = svar[i];
+        if(json.errors && json.errors.length){ throw new Error(json.errors[0].message || 'Ukjent feil fra Entur'); }
+        var calls = get(json, 'data.stopPlace.estimatedCalls', []);
         alleCalls = alleCalls.concat(calls);
-      });
-      alleCalls.sort((a,b) => new Date(a.expectedDepartureTime) - new Date(b.expectedDepartureTime));
+      }
+      alleCalls.sort(function(a,b){ return new Date(a.expectedDepartureTime) - new Date(b.expectedDepartureTime); });
 
-      const tog = alleCalls.filter(c => c.serviceJourney?.journeyPattern?.line?.transportMode === 'rail');
-      const buss = alleCalls.filter(c => {
-        const m = c.serviceJourney?.journeyPattern?.line?.transportMode;
-        return m === 'bus' || m === 'coach';
-      });
+      var tog = [];
+      var buss = [];
+      for(var j=0; j<alleCalls.length; j++){
+        var mode = get(alleCalls[j], 'serviceJourney.journeyPattern.line.transportMode', '');
+        if(mode === 'rail') tog.push(alleCalls[j]);
+        else if(mode === 'bus' || mode === 'coach') buss.push(alleCalls[j]);
+      }
+
       tegnAvgangKolonne(document.getElementById('togListe'), tog, 'Ingen togavganger de nærmeste minuttene.');
       tegnAvgangKolonne(document.getElementById('bussListe'), buss, 'Ingen bussavganger de nærmeste minuttene.');
       statusEl.textContent = 'Sist oppdatert ' + new Date().toLocaleTimeString('nb-NO', { hour:'2-digit', minute:'2-digit', second:'2-digit' });
-    }catch(e){
+    }).catch(function(e){
       console.error('Klarte ikke hente avganger', e);
-      statusEl.innerHTML = `<span class="av-feil">Klarte ikke hente avganger: ${e.message}</span>`;
-    }
+      statusEl.innerHTML = '<span class="av-feil">Klarte ikke hente avganger: ' + e.message + '</span>';
+    });
   }
 
   /* ============ 3) VÆR (Meteorologisk institutt / MET) ============ */
-  const VAER_LAT = 60.1403392;
-  const VAER_LON = 11.1742373;
-  const VAER_STED_NAVN = 'Gotaasalléen 17, Jessheim';
-  const OPPDATER_VAER_MIN = 20;
-  const VAER_ENDEPUNKT = `https://api.met.no/weatherapi/locationforecast/2.0/compact?lat=${VAER_LAT}&lon=${VAER_LON}`;
+  var VAER_LAT = 60.1403392;
+  var VAER_LON = 11.1742373;
+  var VAER_STED_NAVN = 'Gotaasalléen 17, Jessheim';
+  var OPPDATER_VAER_MIN = 20;
+  var VAER_ENDEPUNKT = 'https://api.met.no/weatherapi/locationforecast/2.0/compact?lat=' + VAER_LAT + '&lon=' + VAER_LON;
 
-  const VAER_LABEL = {
+  var VAER_LABEL = {
     clearsky: 'Klarvær', fair: 'Lettskyet', partlycloudy: 'Delvis skyet', cloudy: 'Skyet',
     rainshowers: 'Regnbyger', rain: 'Regn', lightrain: 'Lett regn', heavyrain: 'Kraftig regn',
     lightrainshowers: 'Lette regnbyger', heavyrainshowers: 'Kraftige regnbyger',
@@ -380,103 +413,115 @@
     fog: 'Tåke', thunder: 'Torden'
   };
   function vaerLabel(code){
-    const base = (code || '').replace('_day','').replace('_night','').replace('_polartwilight','');
+    var base = (code || '').replace('_day','').replace('_night','').replace('_polartwilight','');
     return VAER_LABEL[base] || 'Ukjent';
   }
   function vaerIkonSvg(code, storrelse){
-    const c = code || '';
-    const natt = c.includes('_night');
-    const felles = `viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" style="width:${storrelse};height:${storrelse}"`;
-    const sol = `<circle cx="50" cy="46" r="20" fill="#C9A467"/>`;
-    const mane = `<path d="M60 30a22 22 0 1 0 10 32A18 18 0 0 1 60 30Z" fill="#C9A467"/>`;
-    const himmellegeme = natt ? mane : sol;
-    const sky = `<path d="M25 68a14 14 0 0 1 4-27 18 18 0 0 1 35-6 15 15 0 0 1 11 27 4 4 0 0 1 0 6H25a4 4 0 0 1 0-0Z" fill="#A7AEB6"/>`;
-    if(c.startsWith('clearsky')){ return `<svg ${felles}>${himmellegeme}</svg>`; }
-    if(c.startsWith('fair')){ return `<svg ${felles}><g transform="translate(-8,-8) scale(0.85)">${himmellegeme}</g>${sky}</svg>`; }
-    if(c.startsWith('partlycloudy')){ return `<svg ${felles}><g transform="translate(-14,-12) scale(0.7)">${himmellegeme}</g>${sky}</svg>`; }
-    if(c.startsWith('cloudy') || c.startsWith('fog')){ return `<svg ${felles}>${sky}<path d="M25 68a14 14 0 0 1 4-27 18 18 0 0 1 35-6 15 15 0 0 1 11 27" fill="none" stroke="#A7AEB6" stroke-width="2"/></svg>`; }
-    if(c.includes('rain') || c.includes('sleet')){
-      return `<svg ${felles}>${sky}<line x1="35" y1="76" x2="30" y2="90" stroke="#5B8A80" stroke-width="4" stroke-linecap="round"/><line x1="50" y1="76" x2="45" y2="90" stroke="#5B8A80" stroke-width="4" stroke-linecap="round"/><line x1="65" y1="76" x2="60" y2="90" stroke="#5B8A80" stroke-width="4" stroke-linecap="round"/></svg>`;
+    var c = code || '';
+    var natt = c.indexOf('_night') !== -1;
+    var felles = 'viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" style="width:' + storrelse + ';height:' + storrelse + '"';
+    var sol = '<circle cx="50" cy="46" r="20" fill="#C9A467"/>';
+    var mane = '<path d="M60 30a22 22 0 1 0 10 32A18 18 0 0 1 60 30Z" fill="#C9A467"/>';
+    var himmellegeme = natt ? mane : sol;
+    var sky = '<path d="M25 68a14 14 0 0 1 4-27 18 18 0 0 1 35-6 15 15 0 0 1 11 27 4 4 0 0 1 0 6H25a4 4 0 0 1 0-0Z" fill="#A7AEB6"/>';
+    if(c.indexOf('clearsky') === 0){ return '<svg ' + felles + '>' + himmellegeme + '</svg>'; }
+    if(c.indexOf('fair') === 0){ return '<svg ' + felles + '><g transform="translate(-8,-8) scale(0.85)">' + himmellegeme + '</g>' + sky + '</svg>'; }
+    if(c.indexOf('partlycloudy') === 0){ return '<svg ' + felles + '><g transform="translate(-14,-12) scale(0.7)">' + himmellegeme + '</g>' + sky + '</svg>'; }
+    if(c.indexOf('cloudy') === 0 || c.indexOf('fog') === 0){ return '<svg ' + felles + '>' + sky + '<path d="M25 68a14 14 0 0 1 4-27 18 18 0 0 1 35-6 15 15 0 0 1 11 27" fill="none" stroke="#A7AEB6" stroke-width="2"/></svg>'; }
+    if(c.indexOf('rain') !== -1 || c.indexOf('sleet') !== -1){
+      return '<svg ' + felles + '>' + sky + '<line x1="35" y1="76" x2="30" y2="90" stroke="#5B8A80" stroke-width="4" stroke-linecap="round"/><line x1="50" y1="76" x2="45" y2="90" stroke="#5B8A80" stroke-width="4" stroke-linecap="round"/><line x1="65" y1="76" x2="60" y2="90" stroke="#5B8A80" stroke-width="4" stroke-linecap="round"/></svg>';
     }
-    if(c.includes('snow')){
-      return `<svg ${felles}>${sky}<circle cx="35" cy="82" r="3" fill="#F1EEE6"/><circle cx="50" cy="88" r="3" fill="#F1EEE6"/><circle cx="65" cy="82" r="3" fill="#F1EEE6"/></svg>`;
+    if(c.indexOf('snow') !== -1){
+      return '<svg ' + felles + '>' + sky + '<circle cx="35" cy="82" r="3" fill="#F1EEE6"/><circle cx="50" cy="88" r="3" fill="#F1EEE6"/><circle cx="65" cy="82" r="3" fill="#F1EEE6"/></svg>';
     }
-    if(c.includes('thunder')){
-      return `<svg ${felles}>${sky}<path d="M48 74l-8 14h8l-4 10 14-16h-8l6-8Z" fill="#C9A467"/></svg>`;
+    if(c.indexOf('thunder') !== -1){
+      return '<svg ' + felles + '>' + sky + '<path d="M48 74l-8 14h8l-4 10 14-16h-8l6-8Z" fill="#C9A467"/></svg>';
     }
-    return `<svg ${felles}>${sky}</svg>`;
+    return '<svg ' + felles + '>' + sky + '</svg>';
   }
 
-  async function hentVaer(){
-    try{
-      const res = await fetch(VAER_ENDEPUNKT);
-      if(!res.ok) throw new Error('Værtjenesten svarte med feilkode ' + res.status);
-      const json = await res.json();
-      const serie = json.properties?.timeseries;
-      if(!serie || serie.length === 0) throw new Error('Fant ingen værdata.');
+  function hentVaer(){
+    fetch(VAER_ENDEPUNKT)
+      .then(function(res){
+        if(!res.ok) throw new Error('Værtjenesten svarte med feilkode ' + res.status);
+        return res.json();
+      })
+      .then(function(json){
+        var serie = get(json, 'properties.timeseries', null);
+        if(!serie || serie.length === 0) throw new Error('Fant ingen værdata.');
 
-      const naa = serie[0];
-      const detaljer = naa.data.instant.details;
-      const symbol = naa.data.next_1_hours?.summary?.symbol_code || naa.data.next_6_hours?.summary?.symbol_code || 'cloudy';
-      const nedbor = naa.data.next_1_hours?.details?.precipitation_amount;
+        var naa = serie[0];
+        var detaljer = get(naa, 'data.instant.details', {});
+        var symbol = get(naa, 'data.next_1_hours.summary.symbol_code', null) || get(naa, 'data.next_6_hours.summary.symbol_code', null) || 'cloudy';
+        var nedbor = get(naa, 'data.next_1_hours.details.precipitation_amount', undefined);
 
-      document.getElementById('vaerSted').textContent = VAER_STED_NAVN;
-      document.getElementById('vaerTemp').textContent = Math.round(detaljer.air_temperature) + '°';
-      document.getElementById('vaerBeskrivelse').textContent = vaerLabel(symbol);
-      document.getElementById('vaerIkon').innerHTML = vaerIkonSvg(symbol, '100%');
+        document.getElementById('vaerSted').textContent = VAER_STED_NAVN;
+        document.getElementById('vaerTemp').textContent = Math.round(detaljer.air_temperature) + '°';
+        document.getElementById('vaerBeskrivelse').textContent = vaerLabel(symbol);
+        document.getElementById('vaerIkon').innerHTML = vaerIkonSvg(symbol, '100%');
 
-      let detaljTekst = `Vind ${detaljer.wind_speed.toFixed(0)} m/s`;
-      if(nedbor !== undefined && nedbor > 0) detaljTekst += ` · Nedbør ${nedbor} mm`;
-      document.getElementById('vaerDetaljer').textContent = detaljTekst;
+        var detaljTekst = 'Vind ' + detaljer.wind_speed.toFixed(0) + ' m/s';
+        if(nedbor !== undefined && nedbor > 0) detaljTekst += ' · Nedbør ' + nedbor + ' mm';
+        document.getElementById('vaerDetaljer').textContent = detaljTekst;
 
-      const stripEl = document.getElementById('vaerStrip');
-      const stripPunkter = [3, 6, 9, 12].map(i => serie[i]).filter(Boolean);
-      stripEl.innerHTML = stripPunkter.map(p => {
-        const t = new Date(p.time);
-        const sym = p.data.next_1_hours?.summary?.symbol_code || p.data.next_6_hours?.summary?.symbol_code || 'cloudy';
-        return `
-          <div class="vaer-time">
-            <span class="kl">${t.toLocaleTimeString('nb-NO', { hour:'2-digit', minute:'2-digit' })}</span>
-            ${vaerIkonSvg(sym, '100%')}
-            <span class="t">${Math.round(p.data.instant.details.air_temperature)}°</span>
-          </div>
-        `;
-      }).join('');
-    }catch(e){
-      console.error('Klarte ikke hente værdata', e);
-      document.getElementById('vaerBeskrivelse').innerHTML = `<span class="vaer-feil">Klarte ikke hente værdata: ${e.message}</span>`;
-    }
+        var stripEl = document.getElementById('vaerStrip');
+        var idxListe = [3, 6, 9, 12];
+        var html = '';
+        for(var i=0; i<idxListe.length; i++){
+          var p = serie[idxListe[i]];
+          if(!p) continue;
+          var t = new Date(p.time);
+          var sym = get(p, 'data.next_1_hours.summary.symbol_code', null) || get(p, 'data.next_6_hours.summary.symbol_code', null) || 'cloudy';
+          html += ''
+            + '<div class="vaer-time">'
+            + '<span class="kl">' + t.toLocaleTimeString('nb-NO', { hour:'2-digit', minute:'2-digit' }) + '</span>'
+            + vaerIkonSvg(sym, '100%')
+            + '<span class="t">' + Math.round(p.data.instant.details.air_temperature) + '°</span>'
+            + '</div>';
+        }
+        stripEl.innerHTML = html;
+      })
+      .catch(function(e){
+        console.error('Klarte ikke hente værdata', e);
+        document.getElementById('vaerBeskrivelse').innerHTML = '<span class="vaer-feil">Klarte ikke hente værdata: ' + e.message + '</span>';
+      });
   }
 
-  /* ============ Karusell (felles for alle slidetyper) ============ */
-  let slideIndex = 0;
-  let karuselTimer = null;
+  /* ============ Karusell ============ */
+  var slideIndex = 0;
+  var karuselTimer = null;
 
   function byggPrikker(){
-    const slides = mainEl.querySelectorAll('.slide');
+    var slides = mainEl.querySelectorAll('.slide');
     prikkerEl.innerHTML = '';
-    slides.forEach(() => {
-      const p = document.createElement('div');
+    for(var i=0; i<slides.length; i++){
+      var p = document.createElement('div');
       p.className = 'prikk';
       prikkerEl.appendChild(p);
-    });
+    }
   }
 
   function visSlide(i){
-    const slides = mainEl.querySelectorAll('.slide');
-    const prikker = prikkerEl.querySelectorAll('.prikk');
-    slides.forEach((s, j) => s.classList.toggle('aktiv', j === i));
-    prikker.forEach((p, j) => p.classList.toggle('aktiv', j === i));
+    var slides = mainEl.querySelectorAll('.slide');
+    var prikker = prikkerEl.querySelectorAll('.prikk');
+    for(var j=0; j<slides.length; j++){
+      if(j === i) slides[j].className = slides[j].className.replace(' aktiv','') + ' aktiv';
+      else slides[j].className = slides[j].className.replace(' aktiv','');
+    }
+    for(var k=0; k<prikker.length; k++){
+      if(k === i) prikker[k].className = 'prikk aktiv';
+      else prikker[k].className = 'prikk';
+    }
   }
 
   function nesteSlide(){
-    const slides = mainEl.querySelectorAll('.slide');
+    var slides = mainEl.querySelectorAll('.slide');
     if(slides.length === 0) return;
     slideIndex = slideIndex % slides.length;
     visSlide(slideIndex);
-    const varighet = parseFloat(slides[slideIndex].dataset.varighet) || VIS_SEKUNDER_STANDARD;
+    var varighet = parseFloat(slides[slideIndex].getAttribute('data-varighet')) || VIS_SEKUNDER_STANDARD;
     if(karuselTimer) clearTimeout(karuselTimer);
-    karuselTimer = setTimeout(() => {
+    karuselTimer = setTimeout(function(){
       slideIndex = (slideIndex + 1) % slides.length;
       nesteSlide();
     }, varighet * 1000);
@@ -489,7 +534,7 @@
 
   /* ============ Klokke ============ */
   function oppdaterKlokke(){
-    const now = new Date();
+    var now = new Date();
     document.getElementById('klokke').textContent = now.toLocaleTimeString('nb-NO', { hour:'2-digit', minute:'2-digit' });
     document.getElementById('dato').textContent = now.toLocaleDateString('nb-NO', { weekday:'long', day:'numeric', month:'long' });
     if(now.getHours() === RELOAD_KL_TIME && now.getMinutes() === 0 && now.getSeconds() < 2){
@@ -498,7 +543,7 @@
   }
 
   /* ============ Oppstart ============ */
-  hentMeldinger();       // bygger også slides og starter karusellen
+  hentMeldinger();
   hentAvganger();
   hentVaer();
   oppdaterKlokke();
