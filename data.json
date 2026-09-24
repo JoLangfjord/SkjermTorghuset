@@ -3,9 +3,15 @@
   "meldinger": [
     {
       "type": "viktig",
-      "tittel": "Malerarbeid",
-      "tekst": "Kjære beboere,\n\nVi ønsker å informere om:\n\nStillaset på to sider er nå demontert, og de vil begynne med å sette opp på de resterende sidene nå 07.09.2026.\n\nFor å sikre en trygg og effektiv gjennomføring av arbeidet, ber vi alle berørte beboere om å gjøre følgende før oppstart:\n\nFjerne alle møbler fra balkonger og uteplasser.\nFjerne planter, blomsterkasser og øvrige løse gjenstander.\nHeve/samle opp screens og markiser slik at disse ikke kommer i konflikt med stillaset eller arbeidet.\nFjerne flagg oppheng etc.\n\nDet er viktig at områdene er ryddet.Oppstart av vask vil være Torsdag 10.09.2026\n\nVi beklager ulempene dette måtte medføre og takker for forståelsen og samarbeidet.\n\nTakk for tålmodigheten og samarbeidet gjennom prosjektperioden.\n\nMed vennlig hilsen\nStyret",
-      "dato": "08.09.2026"
+      "tittel": "Malerarbeid ferdigstilt",
+      "tekst": "Kjære beboere,\n\nVi er glade for å kunne informere om at maleprosjektet på Torghuset nå er ferdigstilt. Det siste strøket er påført, og arbeidet er dermed fullført i henhold til planen.\n\nNedmontering av stillaset vil starte i løpet av neste uke. Vi ber alle beboere om å være oppmerksomme på at det kan foregå arbeid og transport av utstyr rundt bygget i denne perioden. Vis derfor nødvendig aktsomhet i områdene hvor arbeidet pågår.\n\nVi vil samtidig takke alle beboere for forståelsen og samarbeidet gjennom prosjektperioden.",
+      "dato": "24.09.2026"
+    },
+    {
+      "type": "viktig",
+      "tittel": "Elektronisk kommunikasjon",
+      "tekst": "Har du reservert deg mot elektronisk kommunikasjon, risikerer du å gå glipp av viktig informasjon fra sameiet, som innkalling til årsmøte og annen formell kommunikasjon.\n\nVi anbefaler alle å godta elektronisk kommunikasjon. Dette gjør du på Bonabo-siden under Profil → Samtykker og reservasjoner.",
+      "dato": "24.09.2026"
     }
   ]
 }
